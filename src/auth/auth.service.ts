@@ -4,12 +4,14 @@ import { Model } from 'mongoose';
 import { User } from 'src/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UserInterface } from './dto/user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
 
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
+        private jwtService: JwtService,
     ){}
 
     async loginUser(req: UserInterface): Promise<UserInterface> {
@@ -39,5 +41,13 @@ export class AuthService {
         })
 
         return newUser.save()
+    }
+
+    signUser(userId: string, userName: string, isAdmin: boolean){
+        return this.jwtService.sign({
+            id: userId,
+            userName,
+            isAdmin,
+        })
     }
 }

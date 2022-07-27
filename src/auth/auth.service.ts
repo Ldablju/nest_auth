@@ -1,13 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User } from 'src/entities/user.entity';
+import * as bcrypt from 'bcrypt';
+import { UserInterface } from './dto/user.dto';
 
 @Injectable()
 export class AuthService {
 
-    loginUser(): string {
-        return 'Route /auth/signin work!'
+    constructor(
+        @InjectModel(User.name) private userModel: Model<User>,
+    ){}
+
+    async loginUser(req: UserInterface): Promise<UserInterface> {
+        const user = await this.userModel.findOne({ email: req.email }).exec()
+
+        if(user == null)
+            throw new UnauthorizedException('User does not exist')
+
+        if(!(await bcrypt.compare(req.password, user.password)))
+            throw new UnauthorizedException('Incorrect password')
+
+        return user
     }
 
-    createUser(): string {
-        return 'Route /auth/signup work!'
+    async createUser(req: UserInterface): Promise<UserInterface> {
+        const hashPassword = await bcrypt.hash(req.password, 10);
+
+        const checkUserExist = await this.userModel.findOne({ email: req.email })
+
+        if(checkUserExist)
+            throw new UnauthorizedException('This email is already in use')
+
+        const newUser = await this.userModel.create({
+            userName: req.userName,
+            email: req.email,
+            password: hashPassword,
+        })
+
+        return newUser.save()
     }
 }

@@ -14,7 +14,7 @@ export class AuthService {
         private jwtService: JwtService,
     ){}
 
-    async loginUser(req: UserInterface): Promise<UserInterface> {
+    async loginUser(req: UserInterface): Promise<string> {
         const user = await this.userModel.findOne({ email: req.email }).exec()
 
         if(user == null)
@@ -23,7 +23,7 @@ export class AuthService {
         if(!(await bcrypt.compare(req.password, user.password)))
             throw new UnauthorizedException('Incorrect password')
 
-        return user
+        return this.signUser(user._id, user.userName, user.isAdmin)
     }
 
     async createUser(req: UserInterface): Promise<UserInterface> {

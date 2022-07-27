@@ -11,7 +11,7 @@ export class AuthController {
     @Post('/signin')
     signInUser(
         @Body() user: UserInterface
-    ): Promise<UserInterface> {
+    ): Promise<string> {
         return this.authService.loginUser(user)
     }
 

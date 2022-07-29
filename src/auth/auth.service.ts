@@ -1,10 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from 'src/entities/user.entity';
+import { User } from 'src/models/user.models';
 import * as bcrypt from 'bcrypt';
-import { UserInterface } from './dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { LoginDto, RegisterDto } from './dto/auth.dto';
+import { LoginResponse, RegisterResponse } from './entities/auth.entity';
 
 @Injectable()
 export class AuthService {
@@ -14,19 +15,21 @@ export class AuthService {
         private jwtService: JwtService,
     ){}
 
-    async loginUser(req: UserInterface): Promise<string> {
+    async loginUser(req: LoginDto): Promise<LoginResponse> {
         const user = await this.userModel.findOne({ email: req.email }).exec()
 
-        if(user == null)
+        if(!user)
             throw new UnauthorizedException('User does not exist')
 
         if(!(await bcrypt.compare(req.password, user.password)))
             throw new UnauthorizedException('Incorrect password')
-
-        return this.signUser(user._id, user.userName, user.isAdmin)
+  
+        return {
+            token: this.signUser(user._id, user.userName, user.isAdmin)
+        }
     }
 
-    async createUser(req: UserInterface): Promise<UserInterface> {
+    async createUser(req: RegisterDto): Promise<RegisterResponse> {
         const hashPassword = await bcrypt.hash(req.password, 10);
 
         const checkUserExist = await this.userModel.findOne({ email: req.email })
@@ -40,7 +43,15 @@ export class AuthService {
             password: hashPassword,
         })
 
-        return newUser.save()
+        return newUser.save().then(docs => {
+            return {
+                _id: docs._id,
+                userName: docs.userName,
+                email: docs.email,
+                isAdmin: docs.isAdmin,
+                createdAt: docs.createdAt,
+            }
+        })
     }
 
     signUser(userId: string, userName: string, isAdmin: boolean){

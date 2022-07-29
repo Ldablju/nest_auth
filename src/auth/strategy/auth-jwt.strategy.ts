@@ -6,7 +6,7 @@ import { PassportStrategy } from '@nestjs/passport';
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     constructor() {
         super({
-          jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+          jwtFromRequest: ExtractJwt.fromUrlQueryParameter('token'),
           ignoreExpiration: true,
           secretOrKey: process.env.JWT_SECRET,
         });

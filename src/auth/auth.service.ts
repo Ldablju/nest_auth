@@ -1,10 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/models/user.models';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDto, RegisterDto } from './dto/auth.dto';
+import { AuthDto } from './dto/auth.dto';
 import { LoginResponse, RegisterResponse } from './entities/auth.entity';
 
 @Injectable()
@@ -15,7 +15,11 @@ export class AuthService {
         private jwtService: JwtService,
     ){}
 
-    async loginUser(req: LoginDto): Promise<LoginResponse> {
+    async loginUser(req: AuthDto): Promise<LoginResponse> {
+
+        if(!req.email || !req.password)
+            throw new BadRequestException('Fill required data')
+
         const user = await this.userModel.findOne({ email: req.email }).exec()
 
         if(!user)
@@ -29,7 +33,11 @@ export class AuthService {
         }
     }
 
-    async createUser(req: RegisterDto): Promise<RegisterResponse> {
+    async createUser(req: AuthDto): Promise<RegisterResponse> {
+
+        if(!req.userName || !req.email || !req.password)
+            throw new BadRequestException('Fill required data')
+
         const hashPassword = await bcrypt.hash(req.password, 10);
 
         const checkUserExist = await this.userModel.findOne({ email: req.email })
@@ -56,7 +64,7 @@ export class AuthService {
 
     signUser(userId: string, userName: string, isAdmin: boolean){
         return this.jwtService.sign({
-            id: userId,
+            _id: userId,
             userName,
             isAdmin,
         })

@@ -3,9 +3,6 @@ import { Document } from "mongoose";
 
 @Schema()
 export class User extends Document {
-    @Prop()
-    id: string;
-
     @Prop({ required: true })
     userName: string;
 

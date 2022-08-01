@@ -2,7 +2,7 @@ import { Controller, Get, Inject, UseGuards, Query, Request } from '@nestjs/comm
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { UsersResponse, UserInfoResponse } from './dto/user.dto';
+import { UsersResponse, UserInfoResponse } from './entities/user.entity';
 
 @ApiTags('user')
 @Controller('user')

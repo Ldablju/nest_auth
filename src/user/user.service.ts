@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User } from 'src/models/user.models';
-import { UsersResponse, UserInfoResponse } from './dto/user.dto';
+import { UsersResponse, UserInfoResponse } from './entities/user.entity';
 
 @Injectable()
 export class UserService {

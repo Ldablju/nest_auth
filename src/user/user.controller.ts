@@ -2,7 +2,7 @@ import { Controller, Get, Inject, UseGuards, Query, Request } from '@nestjs/comm
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { UserDto } from './dto/user.dto';
+import { UsersResponse, UserInfoResponse } from './dto/user.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -11,31 +11,32 @@ export class UserController {
         @Inject(UserService) private userService: UserService,
     ) {}
 
+    @ApiCreatedResponse({ type: UserInfoResponse })
     @UseGuards(AuthGuard('jwt'))
     @Get()
     getUserInfo(
         @Query('token') token: string,
         @Request() req: any
-    ): Promise<any> {
+    ): Promise<UserInfoResponse> {
         return this.userService.getUserInfo(req)
     }
 
+    @ApiCreatedResponse({ type: [UsersResponse] })
     @UseGuards(AuthGuard('jwt'))
     @Get('/getAll')
     getAllUsers(
-        @Query('token') token: string,
-        @Request() req: any
-    ): Promise<UserDto[]> {
-        return this.userService.getAllUsers(req)
+        @Query('token') token: string
+    ): Promise<UsersResponse[]> {
+        return this.userService.getAllUsers()
     }
 
-    @ApiCreatedResponse({ type: UserDto })
+    @ApiCreatedResponse({ type: UsersResponse })
     @UseGuards(AuthGuard('jwt'))
     @Get('/findById')
     getUserInfoById(
         @Query('id') id: string,
         @Query('token') token: string
-    ): Promise<UserDto> {
+    ): Promise<UsersResponse> {
         return this.userService.getUserInfoById(id)
     }
 

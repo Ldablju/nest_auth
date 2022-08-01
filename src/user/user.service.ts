@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User } from 'src/models/user.models';
-import { UserDto } from './dto/user.dto';
+import { UsersResponse, UserInfoResponse } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -10,16 +10,15 @@ export class UserService {
         @InjectModel(User.name) private userModel: Model<User>
     ) {}
 
-    async getUserInfo(req) {
+    async getUserInfo(req): Promise<UserInfoResponse> {
         return await this.userModel.findOne({ _id: req.user.id }).select('_id email userName createdAt')
     }
 
-    async getAllUsers(req) {
-        console.log(req.user)
+    async getAllUsers(): Promise<UsersResponse[]> {
         return await this.userModel.find().select('_id userName createdAt')
     }
 
-    async getUserInfoById(id: string): Promise<UserDto> {
+    async getUserInfoById(id: string): Promise<UsersResponse> {
 
         if(id.length != 24)
             throw new BadRequestException('Bad id query')

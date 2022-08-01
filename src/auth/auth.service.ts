@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { User } from 'src/models/user.models';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { AuthDto } from './dto/auth.dto';
+import { LoginDto, RegisterDto } from './dto/auth.dto';
 import { LoginResponse, RegisterResponse } from './entities/auth.entity';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class AuthService {
         private jwtService: JwtService,
     ){}
 
-    async loginUser(req: AuthDto): Promise<LoginResponse> {
+    async loginUser(req: LoginDto): Promise<LoginResponse> {
 
         if(!req.email || !req.password)
             throw new BadRequestException('Fill required data')
@@ -33,7 +33,7 @@ export class AuthService {
         }
     }
 
-    async createUser(req: AuthDto): Promise<RegisterResponse> {
+    async createUser(req: RegisterDto): Promise<RegisterResponse> {
 
         if(!req.userName || !req.email || !req.password)
             throw new BadRequestException('Fill required data')
